@@ -22,6 +22,43 @@ class Graph{
     private:
         vector<vector<Edge>> adjacency_list; 
         int vertices;
+
+        bool hasPathHelper(int src, int dest, vector<bool> &visited) {
+            if(src == dest) 
+                return true;
+
+            visited[src] = true;
+
+            for(auto edge : adjacency_list[src]) {
+                if(visited[edge.end]==false) 
+                    return hasPathHelper(edge.end, dest, visited);
+            }
+            return false;
+        }
+
+
+        void allPathsHelper(
+            int src, int dest, vector<bool> &visited, vector<int> &soFar, vector<vector<int>> &paths) {
+
+
+            visited[src] = true;
+            soFar.push_back(src);
+            if(src==dest) {
+                paths.push_back(soFar);
+            }
+            else {
+                for(auto edge: adjacency_list[src]) {
+                    if(visited[edge.end]==false){ 
+                        allPathsHelper(edge.end, dest, visited, soFar, paths);
+                    }
+                }
+            }
+            
+            soFar.pop_back();
+            visited[src] = false;
+
+        }
+
     
     public:
         Graph(int vertices) {
@@ -29,11 +66,16 @@ class Graph{
             adjacency_list.resize(vertices);
         }
 
-
-
-        void addEdge(int start, int end, float weight) {
+        void addDirectedEdge(int start, int end, float weight) {
             Edge newEdge(start, end, weight);
             adjacency_list[start].push_back(newEdge);
+        }
+
+        void addUndirectedEdge(int v1, int v2, float weight) {
+            Edge newEdge1(v1, v2, weight);
+            Edge newEdge2(v2, v1, weight);
+            adjacency_list[v1].push_back(newEdge1);
+            adjacency_list[v2].push_back(newEdge2);
         }
 
         void printEdgeList() {
@@ -48,22 +90,6 @@ class Graph{
             }
         }
 
-        bool hasPathHelper(int src, int dest, vector<bool> &visited) {
-            if(src == dest) {
-                return true;
-            }
-
-            visited[src] = true;
-
-            for(auto edge : adjacency_list[src]) {
-                if(visited[edge.end]==false) 
-                    return hasPathHelper(edge.end, dest, visited);
-            }
-
-            return false;
-        }
-
-
         bool hasPath(int src, int dest) {
             vector<bool> visited(vertices, 0);
             return hasPathHelper(src, dest, visited);
@@ -71,7 +97,23 @@ class Graph{
 
         int getDegree(int vertex) {
             return adjacency_list[vertex].size();
+        }    
+
+
+        vector<vector<int>> allPaths(int src, int dest) {
+            vector<int> soFar;
+            vector<vector<int>> paths;
+            vector<bool> visited(vertices, 0);
+            allPathsHelper(src, dest, visited, soFar, paths);
+
+            return paths;
+
         }
+
+        vector<Graph> connectedComponents() {
+        }
+
+        
         
 };
 
@@ -79,10 +121,24 @@ class Graph{
 
 int main(int argc, char const *argv[])
 {
-    Graph graph(3);
-    graph.addEdge(0, 2, 10);
-    graph.addEdge(1, 2, 20);
-    graph.addEdge(0, 1, 10);
-    graph.printEdgeList();
+    Graph graph(7);
+    graph.addUndirectedEdge(0, 1, 10);
+    graph.addUndirectedEdge(0, 3, 10);
+    graph.addUndirectedEdge(1, 2, 10);
+    graph.addUndirectedEdge(2, 3, 10);
+    graph.addUndirectedEdge(3, 4, 10);
+    graph.addUndirectedEdge(4, 5, 10);
+    graph.addUndirectedEdge(4, 6, 10);
+    graph.addUndirectedEdge(5, 6, 10);
+
+
+    for(auto x: graph.allPaths(0, 6)){ 
+        for(auto y : x) {
+            cout<<y<<" ";
+        }
+    cout<<endl;
+    }
+
+    // graph.printEdgeList();
     return 0;
 }
