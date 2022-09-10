@@ -1,4 +1,4 @@
-// graph++, A minimal library for performing operations on Graph Data Structure
+// graph++, A minimal library for performing operations on Graph Data Structure.
 // v0.0.1
 // Author: Pragnesh Barik
 #include <iostream>
@@ -59,6 +59,28 @@ class Graph{
 
         }
 
+
+        void connectedVerticesHelper(int src, vector<bool> &visited, vector<int> &vertexList) {
+            visited[src] = true;
+            vertexList.push_back(src);
+
+            for(auto edge: adjacency_list[src]){
+                if(!visited[edge.end]) {
+                    connectedVerticesHelper(edge.end, visited, vertexList);
+                }
+            }
+        }
+
+
+        vector<int> connectedVertices(int src, vector<bool> &visited) {
+            // vector<bool> visited;
+            visited.resize(vertices, false);
+            vector<int> vertexList;
+            connectedVerticesHelper(src, visited, vertexList);
+        
+            return vertexList;
+        }
+
     
     public:
         Graph(int vertices) {
@@ -107,37 +129,60 @@ class Graph{
             allPathsHelper(src, dest, visited, soFar, paths);
 
             return paths;
-
         }
 
-        vector<Graph> connectedComponents() {
+    
+        vector<int> connectedVertices(int src) {
+            vector<bool> visited;
+            visited.resize(vertices, false);
+            vector<int> vertexList;
+
+            connectedVerticesHelper(src, visited, vertexList);
+            
+            return vertexList;
         }
 
-        
-        
+
+        vector<vector<int>> splitComponents() {
+            vector<vector<int>> components;
+            vector<bool> visited(vertices, false);
+
+            for(int i=0; i<vertices; i++) {
+                if(!visited[i]){
+                 components.push_back(connectedVertices(i, visited));   
+                }
+            }
+
+            return components;
+        }
+
+        bool isConnected() {
+            return (splitComponents().size()==1);
+        }        
 };
 
 
 
-int main(int argc, char const *argv[])
-{
+int main(int argc, char const *argv[]){
     Graph graph(7);
     graph.addUndirectedEdge(0, 1, 10);
     graph.addUndirectedEdge(0, 3, 10);
     graph.addUndirectedEdge(1, 2, 10);
     graph.addUndirectedEdge(2, 3, 10);
-    graph.addUndirectedEdge(3, 4, 10);
+    // graph.addUndirectedEdge(3, 4, 10);
     graph.addUndirectedEdge(4, 5, 10);
     graph.addUndirectedEdge(4, 6, 10);
     graph.addUndirectedEdge(5, 6, 10);
 
 
-    for(auto x: graph.allPaths(0, 6)){ 
-        for(auto y : x) {
-            cout<<y<<" ";
-        }
-    cout<<endl;
-    }
+    cout<<graph.isConnected();
+
+    // for(auto x: graph.allPaths(1, 6)){ 
+    //     for(auto y : x) {
+    //         cout<<y<<" ";
+    //     }
+    // cout<<endl;
+    // }
 
     // graph.printEdgeList();
     return 0;
