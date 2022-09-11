@@ -5,11 +5,33 @@
 #include<vector>
 #include<set>
 #include<unordered_set>
+#include<queue>
+
+
 
 using namespace std;
 
-class Edge 
-{
+void display(vector<int> a){
+    for(auto &x : a)cout<<x<<" ";
+    cout<<endl;
+}
+
+
+
+void display(vector<vector<int>> a){
+    for(auto &x: a){
+        for(auto &y: x){
+            cout<<y<<" ";
+        }
+        cout<<endl;
+    }
+        cout<<endl;
+
+}
+
+
+
+class Edge {
     public:
     int start, end;
     float weight;
@@ -19,6 +41,40 @@ class Edge
         this->end = end;
         this->weight = weight;
     }  
+};
+
+
+class Path {
+    public:
+        int currentVertex;
+        vector<int> soFar;
+        int weight;
+
+        Path(int current, vector<int> soFar, int weight){
+            this->currentVertex =  current;
+            this->soFar = soFar;
+            this->weight = weight;
+        }
+
+        Path(){}
+};
+
+void display(vector<Path> a){
+    for(auto &x : a){
+        cout<<"Path: ";
+        for(auto vertex: x.soFar){
+            cout<<vertex<<" ";
+        }
+    cout<<"Weight: "<<x.weight<<endl;
+    }
+}
+
+
+class compare {
+    public :
+        bool operator()(const Path& A, const Path& B){
+            return A.weight > B.weight;
+        }
 };
 
 
@@ -149,6 +205,7 @@ class Graph{
             return vertexList;
         }
 
+
         void updateHamiltonian(){
             Hamiltonian *hamiltonianPointer;
             hamiltonianPointer = new Hamiltonian(this->adjacency_list, this->vertices);
@@ -159,8 +216,6 @@ class Graph{
     
     public:  
         Hamiltonian hamiltonian;
-
-
 
         Graph(int vertices) {
             this->vertices = vertices;
@@ -173,15 +228,18 @@ class Graph{
             return vertices;
         }
 
+
         void addDirectedEdge(int start, int end, float weight) {
             Edge newEdge(start, end, weight);
             adjacency_list[start].push_back(newEdge);
             updateHamiltonian();
         }
 
+
         vector<vector<Edge>> getAdjacencyList() {
             return adjacency_list;
         }
+
 
         void addUndirectedEdge(int v1, int v2, float weight) {
             Edge newEdge1(v1, v2, weight);
@@ -190,6 +248,7 @@ class Graph{
             adjacency_list[v2].push_back(newEdge2);
             updateHamiltonian();
         }
+
 
         void printEdgeList() {
             for (auto vertex: adjacency_list) {
@@ -203,10 +262,12 @@ class Graph{
             }
         }
 
+
         bool hasPath(int src, int dest) {
             vector<bool> visited(vertices, 0);
             return hasPathHelper(src, dest, visited);
         }
+
 
         int getDegree(int vertex) {
             return adjacency_list[vertex].size();
@@ -247,6 +308,7 @@ class Graph{
             return components;
         }
 
+
         bool isConnected() {
             return (splitConnectedComponents().size()==1);
         }
@@ -265,8 +327,71 @@ class Graph{
         }
 
 
-};
+        /**
+         * @brief returns bfs sequence of a graph.
+         * 
+         * @param src 
+         * @return vector<int> 
+         */
+        vector<int> explore(int src){
+            vector<bool> visited(vertices, false);
+            queue<int> vertexQ;
+            vector<int> bfs;
+            vertexQ.push(src);
 
+            while (!vertexQ.empty()){
+                int vertexToExplore;
+                
+                vertexToExplore = vertexQ.front();
+                vertexQ.pop();
+
+                if(visited[vertexToExplore]) continue;
+
+                visited[vertexToExplore]=true;
+
+                bfs.push_back(vertexToExplore);
+                
+                for(auto edge :  adjacency_list[vertexToExplore]) {
+                    if(!visited[edge.end]){
+                        vertexQ.push(edge.end);
+                    }
+                }
+                 
+            }
+            return bfs;
+        }
+
+        vector<Path> dijkstra(int src) {
+            priority_queue<Path,vector<Path>,compare> pathQ;
+            vector<bool> visited(vertices, false);
+            vector<int> soFar;
+            vector<Path> shortestPaths;
+            soFar.push_back(src);
+            pathQ.push(Path(src, soFar,  0));
+
+            while (!pathQ.empty()){
+                Path currentPath = pathQ.top();
+                pathQ.pop();
+
+                if(visited[currentPath.currentVertex]) continue;
+                visited[currentPath.currentVertex] = true;
+
+                shortestPaths.push_back(currentPath);
+
+
+                for(auto edge : adjacency_list[currentPath.currentVertex]){
+                    if(!visited[edge.end]){
+                        vector<int> newSoFar = currentPath.soFar;
+                        newSoFar.push_back(edge.end);
+                        Path newPath(edge.end, newSoFar, currentPath.weight + edge.weight);
+                        pathQ.push(newPath);
+                    }
+                }
+            }
+            return shortestPaths;
+        }
+
+};
 
 
 
@@ -275,23 +400,33 @@ class Graph{
 
 int main(int argc, char const *argv[]){
     Graph graph(7);
+    // graph.addUndirectedEdge(0, 1, 10);
+    // graph.addUndirectedEdge(0, 3, 10);
+    // graph.addUndirectedEdge(1, 2, 10);
+    // graph.addUndirectedEdge(2, 3, 10);
+    // graph.addUndirectedEdge(3, 4, 10);
+    // graph.addUndirectedEdge(4, 5, 10);
+    // graph.addUndirectedEdge(4, 6, 10);
+    // graph.addUndirectedEdge(5, 6, 10);
+    
     graph.addUndirectedEdge(0, 1, 10);
-    graph.addUndirectedEdge(0, 3, 10);
+    graph.addUndirectedEdge(0, 3, 80);
     graph.addUndirectedEdge(1, 2, 10);
     graph.addUndirectedEdge(2, 3, 10);
     graph.addUndirectedEdge(3, 4, 10);
     graph.addUndirectedEdge(4, 5, 10);
     graph.addUndirectedEdge(4, 6, 10);
     graph.addUndirectedEdge(5, 6, 10);
-    for(auto x:graph.hamiltonian.paths(0)) {
+    for(auto x:graph.hamiltonian.cycles(0)) {
         for(auto y:x) {
             cout<<y<<' ';
         }
         cout<<endl;
     };
 
-    cout<<graph.isConnected();
+    // cout<<graph.isConnected();
 
+    display(graph.dijkstra(0));
     // for(auto x: graph.allPaths(1, 6)){ 
     //     for(auto y : x) {
     //         cout<<y<<" ";

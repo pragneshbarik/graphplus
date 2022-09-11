@@ -1,5 +1,16 @@
 {
-    "files.associations": {
-        "unordered_set": "cpp"
-    }
+  "files.associations": {
+    "unordered_set": "cpp",
+    "*.tcc": "cpp",
+    "type_traits": "cpp",
+    "exception": "cpp",
+    "fstream": "cpp",
+    "istream": "cpp",
+    "new": "cpp",
+    "ostream": "cpp",
+    "sstream": "cpp",
+    "stdexcept": "cpp",
+    "streambuf": "cpp",
+    "iostream": "cpp"
+  }
 }

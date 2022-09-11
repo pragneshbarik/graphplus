@@ -21,28 +21,30 @@ Minimal C++ libary for performing graph operations.
     splitConnectedComponents()
     isConnected()
     isEulerian()
-    * explore(vertex)
-    * inDegree(vertex)
-    * outDegree(vertex)
-    * getHamiltonianPath()
-    * getHamiltonianCycle()
+    explore(vertex)
 ```
 
-### 2. Minimal Spanning Trees
+### 2. Hamiltonian
+```
+    hamiltonian.paths(src)
+    hamiltonian.cycles(src)
+```
+
+### 3. Minimal Spanning Trees
 
 ```
-    * prim()
-    * krushkal()
+    * mst.prim()
+    * mst.krushkal()
 ```
 
-### 3. Shortest Path
+### 4. Single Source Shortest Paths
 
 ```
-    * djikstra(src, dest)
+     dijkstra(src, dest)
     * aStar(src, dest)
 ```
 
-### 4. Advanced 
+### 5. Advanced 
 ```
     * topologicalSort()
 ```
