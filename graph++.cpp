@@ -31,6 +31,7 @@ void display(vector<vector<int>> a){
 
 
 
+
 class Edge {
     public:
     int start, end;
@@ -59,6 +60,66 @@ class Path {
         Path(){}
 };
 
+
+class SingleSourceShortestPaths {
+    private :
+    vector<vector<Edge>> adjacency_list;
+    int vertices;
+
+    class compare {
+    public :
+        bool operator()(const Path& A, const Path& B){
+            return A.weight > B.weight;
+        }
+    };
+
+
+    public:
+    
+    SingleSourceShortestPaths(){}
+    SingleSourceShortestPaths(vector<vector<Edge>> adjacency_list, int vertices) {
+        this->adjacency_list = adjacency_list;
+        this->vertices = vertices;
+    }
+
+    void update(vector<vector<Edge>> adjacency_list, int vertices) {
+        this->adjacency_list = adjacency_list;
+        this->vertices = vertices;
+    }
+    
+    vector<Path> dijkstra(int src) {
+            priority_queue<Path,vector<Path>,compare> pathQ;
+            vector<bool> visited(vertices, false);
+            vector<int> soFar;
+            vector<Path> shortestPaths;
+            soFar.push_back(src);
+            pathQ.push(Path(src, soFar,  0));
+
+            while (!pathQ.empty()){
+                Path currentPath = pathQ.top();
+                pathQ.pop();
+
+                if(visited[currentPath.currentVertex]) continue;
+                visited[currentPath.currentVertex] = true;
+
+                shortestPaths.push_back(currentPath);
+
+
+                for(auto edge : adjacency_list[currentPath.currentVertex]){
+                    if(!visited[edge.end]){
+                        vector<int> newSoFar = currentPath.soFar;
+                        newSoFar.push_back(edge.end);
+                        Path newPath(edge.end, newSoFar, currentPath.weight + edge.weight);
+                        pathQ.push(newPath);
+                    }
+                }
+            }
+            return shortestPaths;
+        }
+
+};
+
+
 void display(vector<Path> a){
     for(auto &x : a){
         cout<<"Path: ";
@@ -68,14 +129,6 @@ void display(vector<Path> a){
     cout<<"Weight: "<<x.weight<<endl;
     }
 }
-
-
-class compare {
-    public :
-        bool operator()(const Path& A, const Path& B){
-            return A.weight > B.weight;
-        }
-};
 
 
 class Hamiltonian {
@@ -117,12 +170,16 @@ class Hamiltonian {
     public:
 
     Hamiltonian() {}
+    
+    void update(vector<vector<Edge>> adjacency_list, int vertices) {
+        this->adjacency_list = adjacency_list;
+        this->vertices = vertices;
+    }
 
     Hamiltonian(vector<vector<Edge>> adjacency_list, int vertices) {
         this->adjacency_list = adjacency_list;
         this->vertices = vertices;
     }
-    
 
     set<vector<int>> paths(int src) {
         unordered_set<int> visited;
@@ -141,6 +198,8 @@ class Hamiltonian {
     }
 
 };
+
+
 
 
 class Graph{
@@ -205,22 +264,31 @@ class Graph{
             return vertexList;
         }
 
+        void initialize() {
+            SingleSourceShortestPaths *sssp;
+            Hamiltonian *hp;
+            sssp = new SingleSourceShortestPaths(this->adjacency_list, this->vertices);
+            hp = new Hamiltonian(this->adjacency_list, this->vertices);
+            singleSourceShortestPaths = *sssp;
+            hamiltonian = *hp;
+            delete hp, sssp;
+        }
 
-        void updateHamiltonian(){
-            Hamiltonian *hamiltonianPointer;
-            hamiltonianPointer = new Hamiltonian(this->adjacency_list, this->vertices);
-            this->hamiltonian = *hamiltonianPointer;
-            delete hamiltonianPointer;
+        void notify(){
+            hamiltonian.update(adjacency_list, vertices);
+            singleSourceShortestPaths.update(adjacency_list, vertices);
         }
 
     
     public:  
         Hamiltonian hamiltonian;
+        SingleSourceShortestPaths singleSourceShortestPaths;
 
         Graph(int vertices) {
             this->vertices = vertices;
             adjacency_list.resize(vertices);
-            updateHamiltonian();
+            notify();
+            initialize();
         }
 
     
@@ -232,7 +300,7 @@ class Graph{
         void addDirectedEdge(int start, int end, float weight) {
             Edge newEdge(start, end, weight);
             adjacency_list[start].push_back(newEdge);
-            updateHamiltonian();
+            notify();
         }
 
 
@@ -246,7 +314,7 @@ class Graph{
             Edge newEdge2(v2, v1, weight);
             adjacency_list[v1].push_back(newEdge1);
             adjacency_list[v2].push_back(newEdge2);
-            updateHamiltonian();
+            notify();
         }
 
 
@@ -361,39 +429,9 @@ class Graph{
             return bfs;
         }
 
-        vector<Path> dijkstra(int src) {
-            priority_queue<Path,vector<Path>,compare> pathQ;
-            vector<bool> visited(vertices, false);
-            vector<int> soFar;
-            vector<Path> shortestPaths;
-            soFar.push_back(src);
-            pathQ.push(Path(src, soFar,  0));
-
-            while (!pathQ.empty()){
-                Path currentPath = pathQ.top();
-                pathQ.pop();
-
-                if(visited[currentPath.currentVertex]) continue;
-                visited[currentPath.currentVertex] = true;
-
-                shortestPaths.push_back(currentPath);
-
-
-                for(auto edge : adjacency_list[currentPath.currentVertex]){
-                    if(!visited[edge.end]){
-                        vector<int> newSoFar = currentPath.soFar;
-                        newSoFar.push_back(edge.end);
-                        Path newPath(edge.end, newSoFar, currentPath.weight + edge.weight);
-                        pathQ.push(newPath);
-                    }
-                }
-            }
-            return shortestPaths;
-        }
+        
 
 };
-
-
 
 
 
@@ -424,9 +462,11 @@ int main(int argc, char const *argv[]){
         cout<<endl;
     };
 
+    display(graph.singleSourceShortestPaths.dijkstra(0));
+
     // cout<<graph.isConnected();
 
-    display(graph.dijkstra(0));
+    // display(graph.dijkstra(0));
     // for(auto x: graph.allPaths(1, 6)){ 
     //     for(auto y : x) {
     //         cout<<y<<" ";

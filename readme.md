@@ -40,8 +40,8 @@ Minimal C++ libary for performing graph operations.
 ### 4. Single Source Shortest Paths
 
 ```
-     dijkstra(src, dest)
-    * aStar(src, dest)
+    singleSourceShortestPaths.dijkstra(src)
+    singleSourceShortestPaths.aStar(src)
 ```
 
 ### 5. Advanced 
