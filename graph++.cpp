@@ -7,30 +7,7 @@
 #include<unordered_set>
 #include<queue>
 
-
-
 using namespace std;
-
-void display(vector<int> a){
-    for(auto &x : a)cout<<x<<" ";
-    cout<<endl;
-}
-
-
-
-void display(vector<vector<int>> a){
-    for(auto &x: a){
-        for(auto &y: x){
-            cout<<y<<" ";
-        }
-        cout<<endl;
-    }
-        cout<<endl;
-
-}
-
-
-
 
 class Edge {
     public:
@@ -43,8 +20,18 @@ class Edge {
         this->weight = weight;
     }  
 };
+class Vertex {
+    public :
+    int name;
+    int dist;
+    int prev;
 
-
+    Vertex() {}
+    Vertex(int dist, int prev){
+        this->dist = dist;
+        this->prev = prev;
+    }
+};
 class Path {
     public:
         int currentVertex;
@@ -59,13 +46,22 @@ class Path {
 
         Path(){}
 };
-
-
-class SingleSourceShortestPaths {
-    private :
-    vector<vector<Edge>> adjacency_list;
+class GraphOperations {
+    protected :
+    vector<vector<Edge>> adjacency_list; 
     int vertices;
 
+    public:
+    void update(vector<vector<Edge>> adjacency_list, int vertices) {
+        this->adjacency_list = adjacency_list;
+        this->vertices = vertices;
+    }
+
+};
+class SingleSourceShortestPaths : public GraphOperations{
+    private :
+    vector<Vertex> vertexList;
+    
     class compare {
     public :
         bool operator()(const Path& A, const Path& B){
@@ -78,15 +74,10 @@ class SingleSourceShortestPaths {
     
     SingleSourceShortestPaths(){}
     SingleSourceShortestPaths(vector<vector<Edge>> adjacency_list, int vertices) {
-        this->adjacency_list = adjacency_list;
-        this->vertices = vertices;
+        update(adjacency_list, vertices);
     }
 
-    void update(vector<vector<Edge>> adjacency_list, int vertices) {
-        this->adjacency_list = adjacency_list;
-        this->vertices = vertices;
-    }
-    
+
     vector<Path> dijkstra(int src) {
             priority_queue<Path,vector<Path>,compare> pathQ;
             vector<bool> visited(vertices, false);
@@ -117,24 +108,35 @@ class SingleSourceShortestPaths {
             return shortestPaths;
         }
 
-};
+        
+        vector<float> bellmanFord(int src) {
+            vector<float> distVec(this->vertices, INT_MAX);
+            distVec[src] = 0;
 
-
-void display(vector<Path> a){
-    for(auto &x : a){
-        cout<<"Path: ";
-        for(auto vertex: x.soFar){
-            cout<<vertex<<" ";
+            for(int i=1; i<vertices; i++)
+                for(auto &edges : adjacency_list)
+                    for(auto &edge : edges) 
+                        if(distVec[edge.start]+edge.weight < distVec[edge.end]) 
+                            distVec[edge.end]=distVec[edge.start] + edge.weight; 
+            
+            return distVec;
         }
-    cout<<"Weight: "<<x.weight<<endl;
-    }
-}
 
+        bool detectNegativeCycles() {
+            vector<float> distVec=bellmanFord(0);
+            vector<float> tempVec = distVec;
+            
+            for(auto &edges : adjacency_list)
+                    for(auto &edge : edges) 
+                        if(distVec[edge.start]+edge.weight < distVec[edge.end]) 
+                            distVec[edge.end]=distVec[edge.start] + edge.weight; 
 
-class Hamiltonian {
+            return(tempVec!=distVec);
+        }
+
+};
+class Hamiltonian : public GraphOperations {
     private:
-    vector<vector<Edge>> adjacency_list; 
-    int vertices;
     
     void helper(
         int src, int origin, 
@@ -171,14 +173,8 @@ class Hamiltonian {
 
     Hamiltonian() {}
     
-    void update(vector<vector<Edge>> adjacency_list, int vertices) {
-        this->adjacency_list = adjacency_list;
-        this->vertices = vertices;
-    }
-
     Hamiltonian(vector<vector<Edge>> adjacency_list, int vertices) {
-        this->adjacency_list = adjacency_list;
-        this->vertices = vertices;
+        update(adjacency_list, vertices);
     }
 
     set<vector<int>> paths(int src) {
@@ -198,10 +194,54 @@ class Hamiltonian {
     }
 
 };
+class MinimalSpanningTree : public GraphOperations {
+    
+    public:
+    MinimalSpanningTree(vector<vector<Edge>> adjacency_list, int vertices){
+        update(adjacency_list, vertices);
+    }
 
+    MinimalSpanningTree(){}
+    vector<vector<Edge>> prim() {
+            class compare {
+                public :
+                    bool operator()(const Edge& A, const Edge& B){
+                        return A.weight > B.weight;
+                    }
+                };
+            vector<vector<Edge>> mst;
+            mst.resize(vertices);
 
+            priority_queue<Edge, vector<Edge>, compare> edgeQ;
+            vector<bool> visited(vertices, false);
+            Edge tempEdge(-1, 0, 0);
+            edgeQ.push(tempEdge);
 
+            while(!edgeQ.empty()){
+                Edge topEdge = edgeQ.top();
+                edgeQ.pop();
 
+                if(visited[topEdge.end]) continue;
+
+                visited[topEdge.end] = true;
+
+                if(topEdge.start!=-1){
+                    mst[topEdge.start].push_back(topEdge);
+                }
+                for(auto edge : adjacency_list[topEdge.end]){
+                    if(!visited[edge.end]){
+                        Edge e(topEdge.end, edge.end, edge.weight);
+                        edgeQ.push(e);
+                    }
+                }
+            }
+        return mst;
+        
+        }    
+
+};
+
+ 
 class Graph{
     private:
 
@@ -267,28 +307,45 @@ class Graph{
         void initialize() {
             SingleSourceShortestPaths *sssp;
             Hamiltonian *hp;
+            MinimalSpanningTree *mst;
+
             sssp = new SingleSourceShortestPaths(this->adjacency_list, this->vertices);
             hp = new Hamiltonian(this->adjacency_list, this->vertices);
+            mst = new MinimalSpanningTree(this->adjacency_list, this->vertices);
+            
             singleSourceShortestPaths = *sssp;
             hamiltonian = *hp;
-            delete hp, sssp;
+            minimalSpanningTree = *mst;
+            
+            delete hp, sssp, mst;
         }
 
+
         void notify(){
+            if(adjacency_list.size()>vertices) 
+                this->vertices=adjacency_list.size();
             hamiltonian.update(adjacency_list, vertices);
             singleSourceShortestPaths.update(adjacency_list, vertices);
+            minimalSpanningTree.update(adjacency_list, vertices);
+
         }
 
     
     public:  
         Hamiltonian hamiltonian;
         SingleSourceShortestPaths singleSourceShortestPaths;
+        MinimalSpanningTree minimalSpanningTree;
 
         Graph(int vertices) {
             this->vertices = vertices;
             adjacency_list.resize(vertices);
-            notify();
             initialize();
+            notify();
+        }
+
+        Graph(vector<vector<Edge>> adjacency_list){
+            this->adjacency_list = adjacency_list;
+            this->vertices = adjacency_list.size();
         }
 
     
@@ -318,7 +375,7 @@ class Graph{
         }
 
 
-        void printEdgeList() {
+        void display() {
             for (auto vertex: adjacency_list) {
                 for(auto edge: vertex) {
                     cout
@@ -429,11 +486,45 @@ class Graph{
             return bfs;
         }
 
-        
+           
 
 };
 
+void display(vector<int> a){
+    for(auto &x : a)cout<<x<<" ";
+    cout<<endl;
+}
+void display(vector<vector<int>> a){
+    for(auto &x: a){
+        for(auto &y: x){
+            cout<<y<<" ";
+        }
+        cout<<endl;
+    }
+        cout<<endl;
 
+}
+void display(vector<vector<Edge>> adjacency_list){
+    for (auto vertex: adjacency_list) {
+                for(auto edge: vertex) {
+                    cout
+                    <<"Start: "<<edge.start
+                    <<", End: "<<edge.end
+                    <<", Weight: "<<edge.weight
+                    <<endl;
+                }
+            }
+
+}
+void display(vector<Path> a){
+    for(auto &x : a){
+        cout<<"Path: ";
+        for(auto vertex: x.soFar){
+            cout<<vertex<<" ";
+        }
+    cout<<"Weight: "<<x.weight<<endl;
+    }
+}
 
 
 int main(int argc, char const *argv[]){
@@ -455,14 +546,17 @@ int main(int argc, char const *argv[]){
     graph.addUndirectedEdge(4, 5, 10);
     graph.addUndirectedEdge(4, 6, 10);
     graph.addUndirectedEdge(5, 6, 10);
-    for(auto x:graph.hamiltonian.cycles(0)) {
-        for(auto y:x) {
-            cout<<y<<' ';
-        }
-        cout<<endl;
-    };
+    
+    Graph tree(graph.minimalSpanningTree.prim());
+    tree.display();
+    // for(auto x:graph.hamiltonian.cycles(0)) {
+    //     for(auto y:x) {
+    //         cout<<y<<' ';
+    //     }
+    //     cout<<endl;
+    // };
 
-    display(graph.singleSourceShortestPaths.dijkstra(0));
+    // display(graph.singleSourceShortestPaths.dijkstra(0));
 
     // cout<<graph.isConnected();
 

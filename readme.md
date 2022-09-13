@@ -9,7 +9,7 @@ Minimal C++ libary for performing graph operations.
 
 
 
-### 1. Basic Paths and Cycles
+### *1. Basic Paths and Cycles*
 
 ```
     addDirectedEdge(start, end, weight)
@@ -24,29 +24,32 @@ Minimal C++ libary for performing graph operations.
     explore(vertex)
 ```
 
-### 2. Hamiltonian
+### *2. Hamiltonian*
 ```
     hamiltonian.paths(src)
     hamiltonian.cycles(src)
 ```
 
-### 3. Minimal Spanning Trees
+### *3. Minimal Spanning Trees*
 
 ```
-    * mst.prim()
-    * mst.krushkal()
+    minimalSpanningTree.prim()
+    * minitmalSpanningTree.krushkal()
 ```
 
-### 4. Single Source Shortest Paths
+### *4. Shortest Paths and Allied Algorithms*
 
 ```
     singleSourceShortestPaths.dijkstra(src)
-    singleSourceShortestPaths.aStar(src)
+    singleSourceShortestPaths.bellmanFord(src)
+    singleSourceShortestPaths.detectNegativeCycle()
+    
 ```
 
-### 5. Advanced 
+### 5. Maximum Flow 
 ```
-    * topologicalSort()
+    * maximumFlow.fordFulkerson(source, sink)
+    * maximumFlow.edmondsKarp(source, sink)
 ```
 
 
