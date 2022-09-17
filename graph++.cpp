@@ -7,6 +7,7 @@
 #include<unordered_set>
 #include<queue>
 
+
 using namespace std;
 
 class Edge {
@@ -20,18 +21,7 @@ class Edge {
         this->weight = weight;
     }  
 };
-class Vertex {
-    public :
-    int name;
-    int dist;
-    int prev;
 
-    Vertex() {}
-    Vertex(int dist, int prev){
-        this->dist = dist;
-        this->prev = prev;
-    }
-};
 class Path {
     public:
         int currentVertex;
@@ -60,7 +50,6 @@ class GraphOperations {
 };
 class SingleSourceShortestPaths : public GraphOperations{
     private :
-    vector<Vertex> vertexList;
     
     class compare {
     public :
@@ -240,7 +229,7 @@ class MinimalSpanningTree : public GraphOperations {
         }    
 
 };
-
+class MaximumFlow : public GraphOperations{};
  
 class Graph{
     private:

@@ -8,48 +8,61 @@ Minimal C++ libary for performing graph operations.
 ## **Algorithms**
 
 
-
-### *1. Basic Paths and Cycles*
-
-```
-    addDirectedEdge(start, end, weight)
-    addUndirectedEdge(start, end, weight)
-    getDegree(vertex)
-    hasPath(src, dest)
-    allPaths(src, dest)
-    connectedVertices(vertex)
-    splitConnectedComponents()
-    isConnected()
-    isEulerian()
-    explore(vertex)
-```
-
-### *2. Hamiltonian*
-```
-    hamiltonian.paths(src)
-    hamiltonian.cycles(src)
-```
-
-### *3. Minimal Spanning Trees*
+### 0. Constructors and Allied Classes
 
 ```
-    minimalSpanningTree.prim()
-    * minitmalSpanningTree.krushkal()
-```
+    Edge(int start, int end, float weight)
+        Self-explanatory
 
-### *4. Shortest Paths and Allied Algorithms*
-
-```
-    singleSourceShortestPaths.dijkstra(src)
-    singleSourceShortestPaths.bellmanFord(src)
-    singleSourceShortestPaths.detectNegativeCycle()
+    Graph(int vertices) 
+        Initializes empty graph with specified number of vertices.
     
+    Graph(vector<vector<Edge>> adjacency_list)
+        Initializes non-empty graph with adjacency list.
+```
+
+### 1. Basic Paths and Cycles
+
+```
+    Graph.addDirectedEdge(Edge)
+    Graph.addDirectedEdge(start, end, weight)
+    Graph.addUndirectedEdge(start, end, weight)
+    Graph.getDegree(vertex)
+    Graph.display()
+    Graph.hasPath(src, dest)
+    Graph.allPaths(src, dest)
+    Graph.connectedVertices(vertex)
+    Graph.splitConnectedComponents()
+    Graph.isConnected()
+    Graph.isEulerian()
+    Graph.explore(vertex)
+```
+
+### 2. Hamiltonian
+```
+    Graph.hamiltonian.paths(src)
+    Graph.hamiltonian.cycles(src)
+```
+
+### 3. Minimal Spanning Trees
+
+```
+    Graph.minimalSpanningTree.prim()
+    * Graph.minitmalSpanningTree.krushkal()
+```
+
+### 4. Shortest Paths and Allied Algorithms
+
+```
+    Graph.singleSourceShortestPaths.bellmanFord(src)
+    Graph.singleSourceShortestPaths.dijkstra(src)
+    Graph.singleSourceShortestPaths.detectNegativeCycle()
 ```
 
 ### 5. Maximum Flow 
 ```
-    * maximumFlow.fordFulkerson(source, sink)
-    * maximumFlow.edmondsKarp(source, sink)
+    * Graph.maximumFlow.fordFulkerson(source, sink)
+    * Graph.maximumFlow.edmondsKarp(source, sink)
 ```
 
 
